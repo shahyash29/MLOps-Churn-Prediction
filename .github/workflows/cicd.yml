@@ -26,14 +26,14 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install --upgrade pip
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
       
       - name: Train with mlflow
         env:
           MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
           MLFLOW_EXPERIMENT_NAME: churn_exp
-      run: python training/train_mlflow.py
+        run: python training/train_mlflow.py
 
       - name: Promote best model
         env:
