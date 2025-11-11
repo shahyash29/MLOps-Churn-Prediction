@@ -1,0 +1,47 @@
+version: "3.9"
+services:
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:latest
+    container: mlflow
+    command: >
+      mlflow server
+      --host 0.0.0.0
+      --port 5000
+      --backend-store-uri sqlite:////mlflow/mlflow.db
+      --default-artifacts-root /mlflow/artifacts
+    ports:
+      - "5000:5000"
+    volumes:
+      - mlflow_data:/mlflow
+  
+  trainer:
+    build:
+      context: .
+      dockerfile: Dockerfile.train
+    depends_on:
+      - mlflow
+    environment:
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      MLFLOW_EXPERIMENT_NAME: churn_exp
+    volumes:
+      - ./data:/workspace/data
+      - ./artifacts:/workspace/artifacts
+    
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    depends_on:
+      - mlflow
+    environment:
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      MODEL_NAME: churn
+      MODEL_STAGE: Staging
+      PRED_LOG_DIR: /app/logs/inference
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./logs:/app/logs
+
+volumes:
+  mlflow_data:    

@@ -1,0 +1,12 @@
+FROM python:3.11-slim
+WORKDIR /workspace
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir --upgrade-pip && pip install -r requirements.txt
+
+COPY training/ ./training
+COPY monitor/ ./monitor
+COPY check_data.py ./
+
+ENV MLFLOW_EXPERIMENT_NAME=churn_exp
+CMD ["python","training/train_mlflow.py"]
