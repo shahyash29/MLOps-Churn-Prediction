@@ -31,13 +31,13 @@ jobs:
       
       - name: Train with mlflow
         env:
-          MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
+          MLFLOW_TRACKING_URI: sqlite:///mlflow.db
           MLFLOW_EXPERIMENT_NAME: churn_exp
         run: python training/train_mlflow.py
 
       - name: Promote best model
         env:
-          MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
+          MLFLOW_TRACKING_URI: sqlite:///mlflow.db
           MODEL_NAME: churn
           TARGET_STAGE: Staging
           MLFLOW_EXPERIMENT_NAME: churn_exp
