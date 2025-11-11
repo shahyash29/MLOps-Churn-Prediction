@@ -61,7 +61,7 @@ jobs:
       - name: Normalize image to lowercase
         id: normalize
         run: | 
-          repo = "${GITHUB_REPOSITORY,,}" 
+          repo="${GITHUB_REPOSITORY,,}" 
           echo "repo=${repo}" >> $GITHUB_OUTPUT
       
       - name: Build & push API
