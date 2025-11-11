@@ -6,7 +6,6 @@ on:
 
 env:
   PYTHON_VERSION: "3.11"
-  REPO_SLUG: ${{ github.repository }}
   IMAGE_API: ghcr.io/${{ github.repository }}/churn-api
   IMAGE_TRAIN: ghcr.io/${{ github.repository }}/churn-train
 
@@ -51,19 +50,20 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Convert repository name to lowercase
+        id: normalize
+        uses: ASzc/change-string-case-action@v2
+        with:
+          string: ${{ github.repository }} 
+
       - name: Tag versions
         id: tags
         run: |
           SHA=${GITHUB_SHA::7}
-          echo "api=${{ env.IMAGE_API }}:latest,${{ env.IMAGE_API }}:${SHA}" >> $GITHUB_OUTPUT
-          echo "train=${{ env.IMAGE_TRAIN }}:latest,${{ env.IMAGE_TRAIN }}:${SHA}" >> $GITHUB_OUTPUT
-      
-      - name: Normalize image to lowercase
-        id: normalize
-        run: | 
-          repo="${GITHUB_REPOSITORY,,}" 
-          echo "repo=${repo}" >> $GITHUB_OUTPUT
-      
+          REPO_LC=${{ steps.normalize.outputs.lowercase }}
+          echo "api=ghcr.io/${REPO_LC}/churn-api:latest,ghcr.io/${REPO_LC}/churn-api:${SHA}" >> $GITHUB_OUTPUT
+          echo "train=ghcr.io/${REPO_LC}/churn-train:latest,ghcr.io/${REPO_LC}/churn-train:${SHA}" >> $GITHUB_OUTPUT
+
       - name: Build & push API
         uses: docker/build-push-action@v6
         with:
