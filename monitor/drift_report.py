@@ -13,13 +13,11 @@ REF_PATH = Path(os.getenv("REF_DATA_PATH","data/processed/train.csv"))
 OUT_DIR = Path(os.getenv("DRIFT_OUT_DIR","artifacts/monitoring"))
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-# Load reference data
 print("Loading reference data...")
 ref = pd.read_csv(REF_PATH)
 if "churn" in ref.columns: 
     ref = ref.drop(columns=["churn"])
 
-# Load current data from logs
 rows = []
 if LOG_PATH.exists():
     with open(LOG_PATH, 'r') as f:

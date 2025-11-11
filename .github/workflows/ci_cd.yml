@@ -1,0 +1,74 @@
+name: CI/CD
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: "3.11"
+  IMAGE_API: ghcr.io/${{ github.repository }}/churn-api
+  IMAGE_TRAIN: ghcr.io/${{ github.repository }}/churn-train
+
+jobs:
+  train-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{env.PYTHON_VERSION}}
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      - name: Train with mlflow
+        env:
+          MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
+          MLFLOW_EXPERIMENT_NAME: churn_exp
+      run: python training/train_mlflow.py
+
+      - name: Promote best model
+        env:
+          MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
+          MODEL_NAME: churn
+          TARGET_STAGE: Staging
+          MLFLOW_EXPERIMENT_NAME: churn_exp
+        run: python training/promote_best.py
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Tag versions
+        id: tags
+        run: |
+          SHA=${GITHUB_SHA::7}
+          echo "api=${{ env.IMAGE_API }}:latest,${{ env.IMAGE_API }}:${SHA}" >> $GITHUB_OUTPUT
+          echo "train=${{ env.IMAGE_TRAIN }}:latest,${{ env.IMAGE_TRAIN }}:${SHA}" >> $GITHUB_OUTPUT
+      
+      - name: Build & push API
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.api
+          push: true
+          tags: ${{ steps.tags.outputs.api }}
+      
+      - name: Build & push Trainer
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.train
+          push: true
+          tags: ${{ steps.tags.outputs.train }}

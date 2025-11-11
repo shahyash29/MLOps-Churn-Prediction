@@ -2,7 +2,7 @@ version: "3.9"
 services:
   mlflow:
     image: ghcr.io/mlflow/mlflow:latest
-    container: mlflow
+    container_name: mlflow
     command: >
       mlflow server
       --host 0.0.0.0
@@ -10,7 +10,7 @@ services:
       --backend-store-uri sqlite:////mlflow/mlflow.db
       --default-artifacts-root /mlflow/artifacts
     ports:
-      - "5000:5000"
+      - "5001:5000"
     volumes:
       - mlflow_data:/mlflow
   
