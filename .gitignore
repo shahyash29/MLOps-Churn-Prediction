@@ -63,13 +63,6 @@ models/
 *.pth
 *.onnx
 
-# Data files
-data/raw/
-data/processed/
-*.csv
-*.xlsx
-*.parquet
-
 # Logs
 logs/
 *.log
