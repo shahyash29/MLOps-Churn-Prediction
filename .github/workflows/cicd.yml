@@ -6,8 +6,8 @@ on:
 
 env:
   PYTHON_VERSION: "3.11"
-  IMAGE_API: ghcr.io/${{ github.repository }}/churn-api
-  IMAGE_TRAIN: ghcr.io/${{ github.repository }}/churn-train
+  IMAGE_API: ghcr.io/${{ github.repository.toLowerCase() }}/churn-api
+  IMAGE_TRAIN: ghcr.io/${{ github.repository.toLowerCase() }}/churn-train
 
 jobs:
   train-and-deploy:
