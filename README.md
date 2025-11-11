@@ -107,7 +107,7 @@ The system automatically:
 - Visual drift reports
 - Prometheus metrics integration
 
-## 🐳 Docker Services
+## Docker Services
 
 ### MLflow Server
 - **Image**: `ghcr.io/mlflow/mlflow:latest`
@@ -125,7 +125,7 @@ The system automatically:
 - **Purpose**: Real-time prediction serving
 - **Environment**: Model staging configuration
 
-## 🔄 ML Pipeline
+## ML Pipeline
 
 1. **Data Ingestion**: Raw telco dataset processing
 2. **Feature Engineering**: Numeric coercion, missing value handling
