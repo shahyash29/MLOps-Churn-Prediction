@@ -6,8 +6,9 @@ on:
 
 env:
   PYTHON_VERSION: "3.11"
-  IMAGE_API: ghcr.io/${{ github.repository.toLowerCase() }}/churn-api
-  IMAGE_TRAIN: ghcr.io/${{ github.repository.toLowerCase() }}/churn-train
+  REPO_SLUG: ${{ github.repository }}
+  IMAGE_API: ghcr.io/${{ github.repository }}/churn-api
+  IMAGE_TRAIN: ghcr.io/${{ github.repository }}/churn-train
 
 jobs:
   train-and-deploy:
@@ -56,6 +57,12 @@ jobs:
           SHA=${GITHUB_SHA::7}
           echo "api=${{ env.IMAGE_API }}:latest,${{ env.IMAGE_API }}:${SHA}" >> $GITHUB_OUTPUT
           echo "train=${{ env.IMAGE_TRAIN }}:latest,${{ env.IMAGE_TRAIN }}:${SHA}" >> $GITHUB_OUTPUT
+      
+      - name: Normalize image to lowercase
+        id: normalize
+        run: | 
+          repo = "${GITHUB_REPOSITORY,,}" 
+          echo "repo=${repo}" >> $GITHUB_OUTPUT
       
       - name: Build & push API
         uses: docker/build-push-action@v6
